@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ZombieKiller:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ZombieKiller_jar</output-path>
+    <root id="archive" name="ZombieKiller.jar">
+      <element id="module-output" name="ZombieKiller" />
+    </root>
+  </artifact>
+</component>

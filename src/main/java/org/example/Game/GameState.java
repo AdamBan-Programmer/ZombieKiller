@@ -5,13 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GameState {
+public final class GameState {
 
     Status gameStatus;
     int level;
     int zombiesToKill;
 
-    private static GameState currentGameState = null;
+    private static GameState currentGameState;
 
     private GameState(Status gameStatus, int level, int zombiesToKill) {
         this.gameStatus = gameStatus;

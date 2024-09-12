@@ -123,7 +123,7 @@ public class GameGUI implements CreatorGUI {
     private void changeCrosshair() {
         try {
             Toolkit toolkit = Toolkit.getDefaultToolkit();
-            Image image = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/GameGUI/Crosshair//crosshair.png"))).getImage();
+            Image image = new ImageIcon(ImageIO.read(this.getClass().getResourceAsStream("/GameGUI/Crosshair/crosshair.png"))).getImage();
             Cursor c = toolkit.createCustomCursor(image, new Point(0, 0), "img");
             gameFrame.getContentPane().setCursor(c);
         }

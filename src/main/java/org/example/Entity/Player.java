@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @Getter
 @Setter
-public class Player extends Zombie {
+public final class Player extends Zombie {
 
     private static Player player;
 
