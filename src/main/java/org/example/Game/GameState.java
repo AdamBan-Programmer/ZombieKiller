@@ -7,12 +7,10 @@ import lombok.Setter;
 @Setter
 public final class GameState {
 
-    Status gameStatus;
-    int level;
-    int zombiesToKill;
-
-    private static GameState currentGameState;
-
+    private static GameState instance;
+    private Status gameStatus;
+    private int level;
+    private int zombiesToKill;
     private GameState(Status gameStatus, int level, int zombiesToKill) {
         this.gameStatus = gameStatus;
         this.level = level;
@@ -22,27 +20,27 @@ public final class GameState {
     //changes for next level
     public static void prepareNextLevel()
     {
-        int level = currentGameState.getLevel();
-        currentGameState = new GameState(Status.RUNNING,level+1,5+level);
+        int level = instance.getLevel();
+        instance = new GameState(Status.RUNNING,level+1,5+level);
     }
 
     //sets 1lvl params
     public static void restartGame()
     {
-        currentGameState = new GameState(Status.PAUSED,1,5);
+        instance = new GameState(Status.PAUSED,1,5);
     }
 
     //are any targets?
     public static boolean allZombiesEliminated()
     {
-        return currentGameState.getZombiesToKill() == 0;
+        return instance.getZombiesToKill() == 0;
     }
 
     public static GameState getInstance() {
-        if(currentGameState == null)
+        if(instance == null)
         {
-            currentGameState = new GameState(Status.PAUSED,1,5);
+            instance = new GameState(Status.PAUSED,1,5);
         }
-        return currentGameState;
+        return instance;
     }
 }

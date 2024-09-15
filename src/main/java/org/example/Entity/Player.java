@@ -11,13 +11,12 @@ import java.io.IOException;
 @Setter
 public final class Player extends Zombie {
 
-    private static Player player;
+    private static Player instance;
+    private int money;
+    private int kills;
+    private boolean isShooting;
 
     private static ImageIcon[] playerImages = null;
-
-    int money;
-    int kills;
-    boolean isShooting;
 
     private Player(int speed, int health, float damage, boolean isHurt, boolean isAlive, ImageIcon currentImage, int money, int kills, boolean isShooting) {
         super(speed, health, damage, isHurt, isAlive, currentImage);
@@ -47,21 +46,21 @@ public final class Player extends Zombie {
     //player got hit, decrease players health
     public static void registerDamage(float damage)
     {
-       player.setHealth((int)(player.getHealth() - damage));
-       if(player.getHealth() <= 0)
+       instance.setHealth((int)(instance.getHealth() - damage));
+       if(instance.getHealth() <= 0)
        {
-           player.setAlive(false);
+           instance.setAlive(false);
        }
     }
 
     //player killed zombie
     public static void updateStatsAfterKill()
     {
-        int kills = player.getKills();
-        int money = player.getMoney();
+        int kills = instance.getKills();
+        int money = instance.getMoney();
 
-        player.setKills(kills + 1);
-        player.setMoney(money+2);
+        instance.setKills(kills + 1);
+        instance.setMoney(money+2);
     }
 
     //loads images
@@ -78,10 +77,10 @@ public final class Player extends Zombie {
 
     public static Player getInstance()
     {
-        if(player == null)
+        if(instance == null)
         {
-            player = new Player(0,100,1,false,true,null,0,0,false);
+            instance = new Player(0,100,1,false,true,null,0,0,false);
         }
-        return player;
+        return instance;
     }
 }
