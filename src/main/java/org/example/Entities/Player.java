@@ -1,11 +1,9 @@
-package org.example.Entity;
+package org.example.Entities;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.io.IOException;
 
 @Getter
 @Setter

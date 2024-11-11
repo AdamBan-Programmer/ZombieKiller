@@ -1,7 +1,7 @@
 package org.example.Service;
 
-import org.example.Entity.Player;
-import org.example.Entity.Zombie;
+import org.example.Entities.Player;
+import org.example.Entities.Zombie;
 import org.example.Game.GameState;
 
 import javax.imageio.ImageIO;

@@ -1,6 +1,6 @@
 package org.example.Service;
 
-import org.example.Entity.Player;
+import org.example.Entities.Player;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

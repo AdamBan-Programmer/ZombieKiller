@@ -1,6 +1,6 @@
 package org.example.Game;
 
-import org.example.Entity.Player;
+import org.example.Entities.Player;
 import org.example.GUI.GameGUI;
 import org.example.Service.GameStateService;
 
