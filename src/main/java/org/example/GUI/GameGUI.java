@@ -3,7 +3,10 @@ package org.example.GUI;
 import org.example.Entity.Player;
 import org.example.Entity.Zombie;
 import org.example.Game.GameState;
-import org.example.Game.Status;
+import org.example.Game.GameStatus;
+import org.example.Service.GameStateService;
+import org.example.Service.PlayerService;
+import org.example.Service.ZombieService;
 import org.example.Utils.ScaleImage;
 import org.example.Utils.ScaleLayout;
 
@@ -21,6 +24,9 @@ public class GameGUI implements CreatorGUI {
 
     static ScaleLayout scallingController = new ScaleLayout();
     static ScaleImage scallingImageController = new ScaleImage();
+    static PlayerService playerService = new PlayerService();
+    static ZombieService zombieService = new ZombieService();
+    static GameStateService gameStateService = new GameStateService();
 
     static LinkedHashMap<JPanel, Zombie> zombieHashMap = new LinkedHashMap<>();
 
@@ -33,7 +39,7 @@ public class GameGUI implements CreatorGUI {
 
     static JPanel playerPanel = new JPanel();
     static JLabel healthImageLB = new JLabel();
-    static JLabel gameInfoLB = new JLabel();
+    static JLabel playerInfoLB = new JLabel();
 
     static JProgressBar levelProgressBar = new JProgressBar(SwingConstants.HORIZONTAL);
     static JButton pauseGameBT = new JButton();
@@ -68,7 +74,7 @@ public class GameGUI implements CreatorGUI {
         scallingController.setScallingParams(30,100,0,0,0,safeZone,gameFrame);
         scallingController.setScallingParams(70,100,0,0,30, battleZone,gameFrame);
         scallingController.setScallingParams(2,3,0,1,1, healthImageLB,gameFrame);
-        scallingController.setScallingParams(90,5,50,0,3, gameInfoLB,gameFrame);
+        scallingController.setScallingParams(90,5,50,0,3, playerInfoLB,gameFrame);
         scallingController.setScallingParams(20,3,50,1,40,levelProgressBar,gameFrame);
         scallingController.setScallingParams(3,5,0,1,96, pauseGameBT,gameFrame);
         scallingController.setScallingParams(3,5,0,7,96, showUpgraderBT,gameFrame);
@@ -84,7 +90,7 @@ public class GameGUI implements CreatorGUI {
     @Override
     public void addGUIComponents() {
         gameFrame.add(healthImageLB,2,0);
-        gameFrame.add(gameInfoLB,2,0);
+        gameFrame.add(playerInfoLB,2,0);
         gameFrame.add(levelProgressBar,2,0);
         gameFrame.add(pauseGameBT,2,0);
         gameFrame.add(showUpgraderBT,2,0);
@@ -107,13 +113,13 @@ public class GameGUI implements CreatorGUI {
             Component component = (Component) e.getSource();
 
             if (component == pauseGameBT) {
-                GameState.getInstance().setGameStatus(Status.PAUSED);
+                GameState.getInstance().setGameStatus(GameStatus.PAUSED);
                 new ExitGUI();
             }
 
             if(component == showUpgraderBT)
             {
-                GameState.getInstance().setGameStatus(Status.PAUSED);
+                GameState.getInstance().setGameStatus(GameStatus.PAUSED);
                 new UpgraderGUI();
             }
         }
@@ -187,7 +193,7 @@ public class GameGUI implements CreatorGUI {
     private static void spawnZombie()
     {
         Zombie zombieObj = new Zombie(false,true,null);
-        zombieObj.calculateSkills();
+        zombieService.calculateSkills(zombieObj);
 
         JPanel zombiePanel = new JPanel();
         zombiePanel.setLayout(null);
@@ -213,7 +219,7 @@ public class GameGUI implements CreatorGUI {
                 JButton zombieImageButton = (JButton) me.getSource();
                 JPanel zombiePanel = (JPanel) zombieImageButton.getParent();
                 Zombie zombieObj = zombieHashMap.get(zombiePanel);
-                zombieObj.registerDamage();
+                zombieService.registerDamage(zombieObj);
             }
         });
         zombiePanel.add(newZombieImageButton);
@@ -225,18 +231,20 @@ public class GameGUI implements CreatorGUI {
     //updates all entities and game stats panel
     public static void update() {
         GameState gameState = GameState.getInstance();
-        if(gameState.getGameStatus() != Status.FINISHED) {
-            int zombiesCount = gameState.getZombiesToKill();
+        if(gameState.getGameStatus() != GameStatus.FINISHED) {
+            int zombiesCount = gameState.getZombiesAlive();
             if (zombieHashMap.size() < zombiesCount) {
                 spawnZombie();
             }
             updateZombie();
             updatePlayer();
             updateGameInformations();
+            showUpgraderBT.setEnabled(gameState.getGameStatus() == GameStatus.BREAK);
+
         }
         else {
             JOptionPane.showMessageDialog(null, "The last defender is dead. Zombies have taken over the world");
-            finishGame();
+            GameGUI.close();
         }
     }
 
@@ -244,6 +252,7 @@ public class GameGUI implements CreatorGUI {
     private static void updateZombie() {
         Iterator<Map.Entry<JPanel, Zombie>> iterator = zombieHashMap.entrySet().iterator();
         while (iterator.hasNext()) {
+            Player player = Player.getInstance();
             Map.Entry<JPanel, Zombie> entry = iterator.next();
             JPanel zombiePanel = entry.getKey();
             JButton zombieImageButton = (JButton) zombiePanel.getComponent(0);
@@ -253,17 +262,18 @@ public class GameGUI implements CreatorGUI {
             if (zombieObj.isAlive()) {
                 zombieHP.setText("HP " + zombieObj.getHealth());
                 updateZombiePos(zombiePanel,zombieObj);
-                if(canAttack(zombiePanel))
+                if(zombieService.canAttack(zombiePanel,playerPanel))
                 {
-                    Player.registerDamage(zombieObj.getDamage());
+                    playerService.registerDamage(player,zombieObj.getDamage());
                 }
             } else if(!zombieObj.isHurt()) {
-                zombieObj.registerDeath();
+                zombieService.registerDeath();
+                playerService.updateStatsAfterKill(player);
                 iterator.remove();
                 battleZone.remove(zombiePanel);
                 battleZone.repaint();
             }
-            zombieObj.updateImage();
+            zombieService.updateImage(zombieObj);
             zombieImageButton.setIcon(scallingImageController.scale(zombieObj.getCurrentImage(), zombieImageButton.getWidth(), zombieImageButton.getHeight()));
         }
     }
@@ -300,24 +310,11 @@ public class GameGUI implements CreatorGUI {
         zombiePanel.setLocation(newX,newY);
     }
 
-    //checks that zombie is near to player
-    private static boolean canAttack(JPanel zombiePanel)
-    {
-        if(zombiePanel.getX() == 0)
-        {
-            if(zombiePanel.getY() > playerPanel.getY() && zombiePanel.getY() < playerPanel.getY() + playerPanel.getHeight())
-            {
-                return  true;
-            }
-        }
-        return false;
-    }
-
     //updates player
     private static void updatePlayer() {
         Player player = Player.getInstance();
         JLabel playerImage = (JLabel) playerPanel.getComponents()[0];
-        player.updateImage();
+        playerService.updateImage(player);
         playerImage.setIcon(scallingImageController.scale(player.getCurrentImage(), playerImage.getWidth(), playerImage.getHeight()));
         JLabel playerHP = (JLabel) playerPanel.getComponents()[1];
         playerHP.setText(player.getHealth() + "HP");
@@ -326,20 +323,15 @@ public class GameGUI implements CreatorGUI {
     //updates info panel
     private static void updateGameInformations()
     {
-        Player player = Player.getInstance();
-        int level = GameState.getInstance().getLevel();
-        int zombiesToKill = GameState.getInstance().getZombiesToKill();
-        int progress = 100-(int)((double)zombiesToKill/(5+level-1)*100);
-
-        gameInfoLB.setText(player.getHealth() + "    $" + player.getMoney() + "     KILLS: " + player.getKills());
-        levelProgressBar.setString("level: "+level + "    " + progress + "%");
-        levelProgressBar.setValue(progress);
+        playerInfoLB.setText(Player.getInstance().toString());
+        levelProgressBar.setString(GameState.getInstance().toString());
+        levelProgressBar.setValue(gameStateService.progress());
     }
 
     //clears and closes GameGUI
-    public static void finishGame()
+    public static void close()
     {
-        GameState.getInstance().setGameStatus(Status.FINISHED);
+        GameState.getInstance().setGameStatus(GameStatus.FINISHED);
         pauseGameBT.removeActionListener(actionListener);
         showUpgraderBT.removeActionListener(actionListener);
         zombieHashMap.clear();

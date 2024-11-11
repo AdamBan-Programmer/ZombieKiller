@@ -1,7 +1,8 @@
 package org.example.Game;
 
-public enum Status {
+public enum GameStatus {
     RUNNING,
+    BREAK,
     PAUSED,
     FINISHED
 }

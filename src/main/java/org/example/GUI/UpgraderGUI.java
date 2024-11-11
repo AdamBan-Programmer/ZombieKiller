@@ -2,7 +2,7 @@ package org.example.GUI;
 
 import org.example.Entity.Player;
 import org.example.Game.GameState;
-import org.example.Game.Status;
+import org.example.Game.GameStatus;
 import org.example.Utils.ScaleImage;
 
 import javax.imageio.ImageIO;
@@ -56,7 +56,7 @@ public class UpgraderGUI extends JDialog implements CreatorGUI, ActionListener {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                GameState.getInstance().setGameStatus(Status.RUNNING);
+                GameState.getInstance().setGameStatus(GameStatus.RUNNING);
                 e.getWindow().dispose();
             }
         });
@@ -107,11 +107,7 @@ public class UpgraderGUI extends JDialog implements CreatorGUI, ActionListener {
     private void updatePlayerStats()
     {
         Player player = Player.getInstance();
-        int money = player.getMoney();
-        float damage = player.getDamage();
-        int hp = player.getHealth();
-
-        infoLB.setText("balance: " + money + "$     damage: " + (int)damage + "     HP: " + hp);
+        infoLB.setText(player.toString());
     }
 
     //no money warning

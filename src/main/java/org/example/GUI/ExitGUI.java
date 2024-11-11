@@ -1,7 +1,7 @@
 package org.example.GUI;
 
 import org.example.Game.GameState;
-import org.example.Game.Status;
+import org.example.Game.GameStatus;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +36,7 @@ public class ExitGUI extends JDialog implements CreatorGUI, ActionListener {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
-                GameState.getInstance().setGameStatus(Status.RUNNING);
+                GameState.getInstance().setGameStatus(GameStatus.RUNNING);
                 e.getWindow().dispose();
             }
         });
@@ -74,10 +74,10 @@ public class ExitGUI extends JDialog implements CreatorGUI, ActionListener {
         Object source = e.getSource();
 
         if (source == exitBT) {
-            GameGUI.finishGame();
+            GameGUI.close();
         }
         else {
-            GameState.getInstance().setGameStatus(Status.RUNNING);
+            GameState.getInstance().setGameStatus(GameStatus.RUNNING);
         }
         this.dispose();
     }

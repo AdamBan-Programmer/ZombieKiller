@@ -2,17 +2,17 @@ package org.example.Game;
 
 import org.example.Entity.Player;
 import org.example.GUI.GameGUI;
-import org.example.Game.GameState;
-import org.example.Game.Status;
+import org.example.Service.GameStateService;
 
 public class World {
 
+    GameStateService gameStateService = new GameStateService();
     public World() {
     }
 
     //start new game
     public void createWorld() {
-        GameState.getInstance().setGameStatus(Status.RUNNING);
+        GameState.getInstance().setGameStatus(GameStatus.RUNNING);
         startWorldUpdater();
     }
 
@@ -20,15 +20,23 @@ public class World {
     private void startWorldUpdater() {
         Thread worldThread = new Thread() {
             public void run() {
-                while (GameState.getInstance().getGameStatus() != Status.FINISHED) {
+                GameState gameState = GameState.getInstance();
+                while (gameState.getGameStatus() != GameStatus.FINISHED) {
                     try {
-                        if (GameState.getInstance().getGameStatus() == Status.RUNNING) {
+                        //waiting for next level
+                        if(gameState.getGameStatus() == GameStatus.BREAK)
+                        {
+                            gameStateService.prepareNextLevel(gameState);
+                            Thread.sleep(5000);
+                            gameState.setGameStatus(GameStatus.RUNNING);
+                        }
+                        //game running
+                        if (gameState.getGameStatus() == GameStatus.RUNNING) {
                             Player player = Player.getInstance();
-                            if (player.isAlive() && GameState.allZombiesEliminated()) { //set next level
-                                GameState.prepareNextLevel();
-                                Thread.sleep(5000);
+                            if (player.isAlive() && gameStateService.allZombiesEliminated(gameState)) { //set next level
+                                gameState.setGameStatus(GameStatus.BREAK);
                             } else if (!player.isAlive()) {
-                                GameState.getInstance().setGameStatus(Status.FINISHED); //player died, finish game
+                                gameState.setGameStatus(GameStatus.FINISHED); //player died, finish game
                             }
                             GameGUI.update();
                         }
@@ -37,7 +45,7 @@ public class World {
                         throw new RuntimeException(e);
                     }
                 }
-                GameState.restartGame();
+                Player.resetPlayer();
             }
         };
         worldThread.start();
