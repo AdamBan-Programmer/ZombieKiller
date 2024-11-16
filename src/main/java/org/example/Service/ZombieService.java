@@ -43,7 +43,7 @@ public class ZombieService {
         }
     }
 
-    //checks that zombie is near to player
+    //checks that zombie is nearby the player
     public boolean canAttack(JPanel zombiePanel,JPanel playerPanel)
     {
         if(zombiePanel.getX() == 0)
@@ -57,12 +57,14 @@ public class ZombieService {
     }
 
     //upgrades skills
-    public void calculateSkills(Zombie zombie)
+    public Zombie calculateSkills()
     {
         int level = GameState.getInstance().getLevel();
-        zombie.setSpeed(10 + level);
-        zombie.setHealth(5 + (2*level));
-        zombie.setDamage((float) (0.1 + (0.001*level)));
+        int speed = (10 + level);
+        int hp = (5 + (2*level));
+        float damage = ((float) (0.1 + (0.001*level)));
+
+        return new Zombie(speed,hp,damage,false,true,null);
     }
 
     //zombie got hit

@@ -45,7 +45,7 @@ public class World {
                         throw new RuntimeException(e);
                     }
                 }
-                Player.resetPlayer();
+                GameState.reset();
             }
         };
         worldThread.start();

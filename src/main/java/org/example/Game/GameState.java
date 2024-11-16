@@ -2,6 +2,7 @@ package org.example.Game;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.Entities.Player;
 import org.example.Service.GameStateService;
 
 @Getter
@@ -16,6 +17,13 @@ public final class GameState {
         this.gameStatus = gameStatus;
         this.level = level;
         this.zombiesAlive = zombiesAlive;
+    }
+
+    //reset game state
+    public static void reset()
+    {
+        Player.resetPlayer();
+        instance = null;
     }
     public static GameState getInstance() {
         if(instance == null)

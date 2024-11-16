@@ -192,8 +192,7 @@ public class GameGUI implements CreatorGUI {
     //creates zombie and zombie hp bar
     private static void spawnZombie()
     {
-        Zombie zombieObj = new Zombie(false,true,null);
-        zombieService.calculateSkills(zombieObj);
+        Zombie zombieObj = zombieService.calculateSkills();
 
         JPanel zombiePanel = new JPanel();
         zombiePanel.setLayout(null);

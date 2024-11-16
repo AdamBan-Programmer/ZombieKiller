@@ -7,14 +7,14 @@ import javax.swing.*;
 
 @Getter
 @Setter
-public final class Player extends Zombie {
+public final class Player extends Entity{
 
     private static Player instance;
     private int money;
     private int kills;
     private boolean isShooting;
 
-    private Player(int speed, int health, float damage, boolean isHurt, boolean isAlive, ImageIcon currentImage, int money, int kills, boolean isShooting) {
+    public Player(int speed, int health, float damage, boolean isHurt, boolean isAlive, ImageIcon currentImage, int money, int kills, boolean isShooting) {
         super(speed, health, damage, isHurt, isAlive, currentImage);
         this.money = money;
         this.kills = kills;
